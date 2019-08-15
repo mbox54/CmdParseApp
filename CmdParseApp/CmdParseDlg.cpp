@@ -22,18 +22,8 @@
 #endif
 
 
-void Trace_Custom(CEdit * pEdit, LPCTSTR szFmt, ...)
+void Trace_Custom(CEdit * pEdit, CString str)
 {
-	CString str;
-
-	// Format the message text
-	va_list argptr;
-	va_start(argptr, szFmt);
-	str.FormatV(szFmt, argptr);
-	va_end(argptr);
-
-	str.Replace(_T("\n"), _T("\r\n"));
-
 	CString strWndText;
 	pEdit->GetWindowText(strWndText);
 	strWndText += str;
@@ -45,8 +35,7 @@ void Trace_Custom(CEdit * pEdit, LPCTSTR szFmt, ...)
 }
 
 
-
-void cmd00(void)
+void OutputLog(LPCTSTR szFmt, ...)
 {
 	// get control from memory
 	CWnd* pEditLog = AfxGetApp()->m_pMainWnd->GetDlgItem(IDC_EDIT_LOG);
@@ -59,14 +48,191 @@ void cmd00(void)
 	{
 		// [VALID]
 
-		// perform op
-		CEdit* pEdit = static_cast<CEdit*>(pEditLog);
-		Trace_Custom(pEdit, _T("123\n"));
+		// > perform op
+		CEdit* pEdit = static_cast<CEdit*>(pEditLog);		
+
+		// format the message text
+		CString str;
+		va_list argptr;
+		va_start(argptr, szFmt);
+		str.FormatV(szFmt, argptr);
+		va_end(argptr);
+
+		str.Replace(_T("\n"), _T("\r\n"));
+
+		// output to control
+		Trace_Custom(pEdit, str);
 	}
+}
+
+
+void pause_thread(int n, int A)
+{
+	int k = 0;
+
+	while (k < n)
+	{
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		OutputLog(_T("thread %d : pause of %d seconds ended \n"), A, k);
+
+		k++;
+	}
+
+	OutputLog(_T("[ thread %d has ended ] \n"), A);
+}
+
+
+void CallProc1(void)
+{
+	// get control from memory
+	//CWnd* pDialogWnd = AfxGetApp()->m_pMainWnd->GetDlgItem(IDD_CMDPARSEAPP_DIALOG);
+	CWnd* pDialogWnd = AfxGetApp()->m_pMainWnd;
+	HWND hWND = pDialogWnd->GetSafeHwnd();
+
+	// check control appropriate class
+	wchar_t str_buf[256];
+	GetClassName(hWND, str_buf, 255);
+//	if (StrCmpIW(str_buf, _T("Dialog")) == 0)
+	{
+		// [VALID]
+
+		// > perform op
+		CCmdParseDlg* pDialodParse = static_cast<CCmdParseDlg*>(pDialogWnd);
+
+		pDialodParse->Trace(_T("ParseDlg.Proc()\n"));		
+	}
+}
+
+
+void CallProc2(void)
+{
+	// get control from memory
+	//CWnd* pDialogWnd = AfxGetApp()->m_pMainWnd->GetDlgItem(IDD_CMDPARSEAPP_DIALOG);
+	CWnd* pDialogWnd = AfxGetApp()->m_pMainWnd;
+	HWND hWND = pDialogWnd->GetSafeHwnd();
+
+	// check control appropriate class
+	wchar_t str_buf[256];
+	GetClassName(hWND, str_buf, 255);
+	//	if (StrCmpIW(str_buf, _T("Dialog")) == 0)
+	{
+		// [VALID]
+
+		// > perform op
+		CCmdParseDlg* pDialodParse = static_cast<CCmdParseDlg*>(pDialogWnd);
+
+		pDialodParse->Sample1(0);
+	}
+}
+
+
+void CallAfxThread1(void)
+{
+	// get control from memory
+	//CWnd* pDialogWnd = AfxGetApp()->m_pMainWnd->GetDlgItem(IDD_CMDPARSEAPP_DIALOG);
+	CWnd* pDialogWnd = AfxGetApp()->m_pMainWnd;
+	HWND hWND = pDialogWnd->GetSafeHwnd();
+
+	// check control appropriate class
+	wchar_t str_buf[256];
+	GetClassName(hWND, str_buf, 255);
+	//	if (StrCmpIW(str_buf, _T("Dialog")) == 0)
+	{
+		// [VALID]
+
+		// > perform op
+		CCmdParseDlg* pDialodParse = static_cast<CCmdParseDlg*>(pDialogWnd);
+
+		pDialodParse->ProcThread1();
+	}
+}
+
+
+void CallAfxThread2(void)
+{
+	// get control from memory
+	//CWnd* pDialogWnd = AfxGetApp()->m_pMainWnd->GetDlgItem(IDD_CMDPARSEAPP_DIALOG);
+	CWnd* pDialogWnd = AfxGetApp()->m_pMainWnd;
+	HWND hWND = pDialogWnd->GetSafeHwnd();
+
+	// check control appropriate class
+	wchar_t str_buf[256];
+	GetClassName(hWND, str_buf, 255);
+	//	if (StrCmpIW(str_buf, _T("Dialog")) == 0)
+	{
+		// [VALID]
+
+		// > perform op
+		CCmdParseDlg* pDialodParse = static_cast<CCmdParseDlg*>(pDialogWnd);
+
+		pDialodParse->ProcThread2();
+	}
+}
+
+// simple tests
+void cmd00(char * strValue)
+{
+	OutputLog(_T("Getting specific window (CEdit) in App main dialog. \n"));	
+}
+
+
+void cmd01(char* strValue)
+{
+	OutputLog(_T("Getting specific window method in Dialog. \n"));
+
+	CallProc1();
+}
+
+
+void cmd02(char * strValue)
+{
+	OutputLog(_T("Spawning 3 std::thread's...\n"));
+
+	std::thread t1(pause_thread, 5, 1);
+	Sleep(10);
+	std::thread t2(pause_thread, 10, 2);
+	Sleep(10);
+	std::thread t3(pause_thread, 15, 3);
+	Sleep(10);
+
+	OutputLog(_T("Done spawning threads. (not waiting for them to join)\n"));
+	t1.detach();
+	t2.detach();
+	t3.detach();
+	OutputLog(_T("All threads detached!\n"));
+}
+
+
+void cmd03(char* strValue)
+{
+	OutputLog(_T("Calling Dialog function with Sleep()\n"));
+
+	CallProc2();
+}
+
+
+void cmd04(char* strValue)
+{
+	OutputLog(_T("Spawning AfxThread(void) with Sleep()\n"));
+
+	CallAfxThread1();
+}
+
+
+void cmd05(char* strValue)
+{
+	OutputLog(_T("Spawning AfxThread(pointer) with Sleep()\n"));
+
+	CallAfxThread2();
+}
+
+// thread complex test
+void thread1(char* strValue)
+{
 
 }
 
-void cmd01(void)
+void thread2(char* strValue)
 {
 
 }
@@ -176,7 +342,7 @@ BOOL CCmdParseDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-
+	
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -229,7 +395,6 @@ HCURSOR CCmdParseDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
-
 
 
 void CCmdParseDlg::OnOK()
@@ -303,12 +468,55 @@ void CCmdParseDlg::Trace(LPCTSTR szFmt, ...)
 	m_ctrlEdit_Log.LineScroll(m_ctrlEdit_Log.GetLineCount() - 4);
 }
 
+// test proc
+void CCmdParseDlg::ProcThread1(void)
+{
+	// create new thread with no params
+	AfxBeginThread(Sample1, NULL);
+}
+
+
+void CCmdParseDlg::ProcThread2(void)
+{
+	// create new thread with param
+	int* input = new int;
+	*input = 9001;
+
+	// NOTE: var 'input' desroys in threadProc
+	AfxBeginThread(Sample2, input);
+}
+
+
+UINT CCmdParseDlg::Sample1(LPVOID rawInput)
+{
+	for (BYTE k = 0; k < 10; k++)
+	{
+		OutputLog(_T("Second number %d \n"), k);
+
+		Sleep(1500);
+	}
+
+	return 0;
+}
+
+
+UINT __cdecl CCmdParseDlg::Sample2(LPVOID rawInput)
+{
+	// convert it to the correct data type. It's common to pass entire structures this way.
+	int * input = (int*)rawInput;
+
+	// avoid memory leak
+	delete input;
+
+
+	return 0;
+}
 
 // Clear Log control
 void CCmdParseDlg::OnBnClickedButton1()
 {
 	//m_ctrlEdit_Log.SetWindowText(_T(""));
-	cmd00();
+	//cmd00();
 }
 
 

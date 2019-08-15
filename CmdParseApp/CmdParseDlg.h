@@ -12,13 +12,40 @@
 
 // cmd parse proc
 #include "parse_proc.h"
+// thread
+#include <thread>         // std::thread, std::this_thread::sleep_for
+// support
+#include <chrono>         // std::chrono::seconds
+
+
+////////////////////////////////////////////////////////////////////////////////
+// define
+////////////////////////////////////////////////////////////////////////////////
+#define CMD_MAX_LENGTH		64
+#define CMD_ENTITY_LEN		16
+#define CMD_VALUE_LEN		48
+
+#define CMD_COUNT			9
+
 
 // support
-void Trace_Custom(CEdit* pEdit, LPCTSTR szFmt, ...);
+void Trace_Custom(CEdit* pEdit, CString str);
+void OutputLog(LPCTSTR szFmt, ...);
+void pause_thread(int n, int A);
+void CallProc1(void);
+void CallAfxThread1(void);
+void CallAfxThread2(void);
+
 
 // cmds
-void cmd00(void);
-void cmd01(void);
+void cmd00(char* strValue);
+void cmd01(char* strValue);
+void cmd02(char* strValue);
+void cmd03(char* strValue);
+void cmd04(char* strValue);
+void cmd05(char* strValue);
+void thread1(char* strValue);
+void thread2(char* strValue);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,15 +82,21 @@ protected:
 
 
 public:
+
+	static UINT __cdecl Sample1(LPVOID rawInput);
+	static UINT __cdecl Sample2(LPVOID rawInput);
+
 	void ExecuteCommand(void);
 	void Trace(LPCTSTR szFmt, ...);
-
+	void ProcThread1(void);
+	void ProcThread2(void);
 
 	afx_msg void OnBnClickedOk();
 
-
-	CKeyEdit m_ctrlEdit_Cmd;
 	CEdit m_ctrlEdit_Log;
+	CKeyEdit m_ctrlEdit_Cmd;
+	
 	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedButton2();
+	
 };

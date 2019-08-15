@@ -11,8 +11,17 @@
 #include "CmdParseDlg.h"
 
 // externs
-void cmd00(void);
-void cmd01(void);
+void help(char* strValue);
+void cmd00(char* strValue);
+void cmd01(char* strValue);
+void cmd02(char* strValue);
+void cmd03(char* strValue);
+void cmd04(char* strValue);
+void cmd05(char* strValue);
+void thread1(char* strValue);
+void thread2(char* strValue);
+
+void OutputLog(LPCTSTR szFmt, ...);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,12 +46,6 @@ void cmd01(void);
 #define CMD_RET_UNKNOWN		1
 #define CMD_RET_BAD_PAR		2
 
-#define CMD_MAX_LENGTH		64
-#define CMD_ENTITY_LEN		16
-#define CMD_VALUE_LEN		48
-
-#define CMD_COUNT			20
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Function
@@ -53,30 +56,76 @@ struct stCommand
 {
 	// description
 	const char* entity;
-	const char* help;
+	const char* info;
 
 	// function
-	void(*proc)(void);
+	void(*proc)(char * strValue);
 
 };
 
 
 // defined commands
-static const stCommand gv_cmdLines[2] =
+static const stCommand gv_cmdLines[9] =
 {
 	{
+		"help",
+		"Show full list of entities with short description.",
+		help
+	},
+
+	{
 		"cmd00",
-		"cmd0_help",
+		"Getting specific window (CEdit) in App main dialog.",
 		cmd00
 	},
 
 	{
 		"cmd01",
-		"cmd1_helphelp",
+		"Getting specific window method in Dialog.",
 		cmd01
+	},
+
+	{
+		"cmd02",
+		"Spawning 3 std::thread's...",
+		cmd02
+	},
+
+	{
+		"cmd03",
+		"Calling Dialog function with Sleep()",
+		cmd03
+	},
+
+	{
+		"cmd04",
+		"Spawning AfxThread(void) with Sleep()",
+		cmd04
+	},
+
+	{
+		"cmd05",
+		"Spawning AfxThread(pointer) with Sleep()",
+		cmd05
+	},
+
+	{
+		"thread1",
+		"Thread1 test ops.",
+		thread1
+	},
+
+	{
+		"thread2",
+		"Thread2 test ops.",
+		thread2
 	}
 
 };
+
+// new method #0
+BYTE CmdLine_Proc(char* strCommand);
+
 
 /////////////////////////////////////////////////////////////////////////
 // old type 2
@@ -116,12 +165,5 @@ static const stCommand gv_cmdLines[2] =
 //			}
 //
 //};
-
-
-
-
-// new method #0
-BYTE CmdLine_Proc(char* strCommand);
-
 // old method #2
 //BYTE Proc_CommandLine_type2(char* strInput);

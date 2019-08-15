@@ -12,6 +12,10 @@
 #include "parse_proc.h"
 
 
+////////////////////////////////////////////////////////////////////////////////
+// functions
+////////////////////////////////////////////////////////////////////////////////
+
 // INFO:
 // function: proc line
 // clauses:
@@ -19,7 +23,6 @@
 // uses symbols: '\0' - at the end
 // # mode 1 = entity value
 // uses symbols: ' ' - to separate, '\0' - at the end 
-
 BYTE CmdLine_Proc(char* strCommand)
 {
 	char strEntity[CMD_ENTITY_LEN];
@@ -64,7 +67,7 @@ BYTE CmdLine_Proc(char* strCommand)
 
 			// > activate
 			// NOTE: Value can be checked also too
-			gv_cmdLines[k].proc();
+			gv_cmdLines[k].proc(strValue);
 
 			return CMD_RET_SUCCESS;
 		}
@@ -72,6 +75,19 @@ BYTE CmdLine_Proc(char* strCommand)
 
 	return CMD_RET_UNKNOWN; 
 }
+
+// commands /service
+// show full list of entities with help field
+void help(char* strValue)
+{
+	for (BYTE k = 0; k < CMD_COUNT; k++)
+	{
+		OutputLog(_T("%02d. %s: %s\n"), k, (CStringW)(CStringA)gv_cmdLines[k].entity, (CStringW)(CStringA)gv_cmdLines[k].info);
+	}
+
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////
 // old realisation /type2
@@ -85,115 +101,115 @@ BYTE CmdLine_Proc(char* strCommand)
 // uses separate symbols: '=', '\0'
 // # mode 2 = parse cmp value
 // uses separate symbols: '\0'
-BYTE GetStrSep(char* strParse, char* strOutput, BYTE* ucSepNum, BYTE mode)
-{
-	const BYTE const_MAX_SEP_CHARS = 8;
-
-	struct
-	{
-		BYTE ucCount;
-		char v_char[const_MAX_SEP_CHARS];
-
-	} v_mode[3] = {
-		// mode 0:
-		{
-			2,
-			{ '-', '=' }
-		},
-		// mode 1:
-		{
-			1,
-			{ '=' }
-		},
-		// mode 2:
-		{
-			0,
-			{  }
-		}
-	};
-
-
-	// NOTE:
-	// cycle proc in next modes:
-	// act = 0: cycle proc end
-	// act = 1: try find Separate symbol op
-	char strTag[MAX_STR_TAG];
-
-	BYTE k = 0;
-	BYTE ucEndPos = 0;
-	char c;
-
-	BYTE act = 1;
-	while (act != 0)
-	{
-		// get iteration Symbol
-		c = strParse[k];
-
-		// check EOL
-		if (c == '\0')
-		{
-			// [EOS]
-
-			// define a Reason
-			if (k == 0)
-			{
-				// [EMPTY LINE]
-
-				return OP_NULL_STR;
-			}
-			else
-			{
-				// [NO SEPARATE SYMBOL FOUND]
-
-				return OP_END_NULL;
-			}
-		}// > Check End of Cycle /EOS
-
-		// > Proceed String
-		else
-		{
-			// [proc find Separate symbol]
-
-			BYTE ucSepNumber = 0;
-			while (ucSepNumber < v_mode[mode].ucCount)
-			{
-				// check separate coincidence
-				if (c == v_mode[mode].v_char[ucSepNumber])
-				{
-					// [COINCIDE]
-
-					// store coincide separate symbol
-					*ucSepNum = ucSepNumber;
-
-					// define End Pos
-					ucEndPos = k;
-
-					// trigger flag
-					act = 0;
-
-					// activate stop search op
-					ucSepNumber = v_mode[mode].ucCount;
-				}
-			}//while ucSepNum
-
-			// next symbol
-			k++;
-		}
-
-	}//while (act != 0)
-
-	// > Form Output String /tag/
-	for (BYTE kk = 0; kk <= ucEndPos; kk++)
-	{
-		strOutput[kk] = strParse[kk];
-	}
-
-	strOutput[ucEndPos + 1] = '\0';
-
-
-	return OP_END_SYMB;
-}
-
+//BYTE GetStrSep(char* strParse, char* strOutput, BYTE* ucSepNum, BYTE mode)
+//{
+//	const BYTE const_MAX_SEP_CHARS = 8;
+//
+//	struct
+//	{
+//		BYTE ucCount;
+//		char v_char[const_MAX_SEP_CHARS];
+//
+//	} v_mode[3] = {
+//		// mode 0:
+//		{
+//			2,
+//			{ '-', '=' }
+//		},
+//		// mode 1:
+//		{
+//			1,
+//			{ '=' }
+//		},
+//		// mode 2:
+//		{
+//			0,
+//			{  }
+//		}
+//	};
+//
+//
+//	// NOTE:
+//	// cycle proc in next modes:
+//	// act = 0: cycle proc end
+//	// act = 1: try find Separate symbol op
+//	char strTag[MAX_STR_TAG];
+//
+//	BYTE k = 0;
+//	BYTE ucEndPos = 0;
+//	char c;
+//
+//	BYTE act = 1;
+//	while (act != 0)
+//	{
+//		// get iteration Symbol
+//		c = strParse[k];
+//
+//		// check EOL
+//		if (c == '\0')
+//		{
+//			// [EOS]
+//
+//			// define a Reason
+//			if (k == 0)
+//			{
+//				// [EMPTY LINE]
+//
+//				return OP_NULL_STR;
+//			}
+//			else
+//			{
+//				// [NO SEPARATE SYMBOL FOUND]
+//
+//				return OP_END_NULL;
+//			}
+//		}// > Check End of Cycle /EOS
+//
+//		// > Proceed String
+//		else
+//		{
+//			// [proc find Separate symbol]
+//
+//			BYTE ucSepNumber = 0;
+//			while (ucSepNumber < v_mode[mode].ucCount)
+//			{
+//				// check separate coincidence
+//				if (c == v_mode[mode].v_char[ucSepNumber])
+//				{
+//					// [COINCIDE]
+//
+//					// store coincide separate symbol
+//					*ucSepNum = ucSepNumber;
+//
+//					// define End Pos
+//					ucEndPos = k;
+//
+//					// trigger flag
+//					act = 0;
+//
+//					// activate stop search op
+//					ucSepNumber = v_mode[mode].ucCount;
+//				}
+//			}//while ucSepNum
+//
+//			// next symbol
+//			k++;
+//		}
+//
+//	}//while (act != 0)
+//
+//	// > Form Output String /tag/
+//	for (BYTE kk = 0; kk <= ucEndPos; kk++)
+//	{
+//		strOutput[kk] = strParse[kk];
+//	}
+//
+//	strOutput[ucEndPos + 1] = '\0';
+//
+//
+//	return OP_END_SYMB;
+//}
+//
 
 
 //BYTE Proc_CommandLine_type2(char* strInput)
