@@ -46,6 +46,8 @@ void OutputLog(LPCTSTR szFmt, ...);
 #define CMD_RET_UNKNOWN		1
 #define CMD_RET_BAD_PAR		2
 
+#define CMD_COUNT			9
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Function
@@ -65,7 +67,7 @@ struct stCommand
 
 
 // defined commands
-static const stCommand gv_cmdLines[9] =
+static const stCommand gv_cmdLines[CMD_COUNT] =
 {
 	{
 		"help",

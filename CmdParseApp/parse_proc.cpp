@@ -59,7 +59,7 @@ BYTE CmdLine_Proc(char* strCommand)
 
 	// > check Valid Entity
 	BYTE ucInvalidCmd = 1;
-	for (BYTE k = 0; k < 2; k++)
+	for (BYTE k = 0; k < CMD_COUNT; k++)
 	{
 		if (strcmp(strEntity, gv_cmdLines[k].entity) == 0)
 		{

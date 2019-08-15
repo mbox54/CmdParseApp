@@ -25,8 +25,6 @@
 #define CMD_ENTITY_LEN		16
 #define CMD_VALUE_LEN		48
 
-#define CMD_COUNT			9
-
 
 // support
 void Trace_Custom(CEdit* pEdit, CString str);
